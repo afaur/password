@@ -21,7 +21,7 @@ class Crypto
   end
 
   def self.generate_iv
-    Base64.encode64(OpenSSL::Cipher::Cipher.new(ALG).random_iv)
+    Base64.encode64(OpenSSL::Cipher::Cipher.new(ALG).random_iv).chomp
   end
 
   def cipher(type)
@@ -47,28 +47,62 @@ class Password
   attr_accessor :uuid, :location, :encryption_version, :iv, :title
   attr_accessor :updatedAt, :createdAt, :createdBy
   attr_accessor :user, :pass
+  attr_accessor :master_pass
 
-  def save
-    File.open('foo.json', 'w') do |file|
-      file.write('{
-      uuid: uuid,
-      location: location,
-      encryption_version: encryption_version,
-      iv: iv,
-      title: title,
-      updatedAt: updatedAt,
-      createdAt: createdAt,
-      createdBy: createdBy,
-      user: user,
-      pass: pass
-      }')
-    end
-  end
-
-  def initialize(data)
+  def initialize(master_password, data = {})
+    @master_pass = master_password
     data.each do |key, value|
       send("#{key}=".to_sym, value)
     end
+  end
+
+  def save
+    File.open(filename, 'w') do |file|
+      file.write({
+        uuid: uuid,
+        location: location,
+        encryption_version: encryption_version,
+        iv: iv,
+        title: title,
+        updatedAt: updatedAt,
+        createdAt: createdAt,
+        createdBy: createdBy,
+        encrypted: encrypted,
+      }.to_json)
+    end
+  end
+
+  def filename
+    "#{uuid}.json"
+  end
+
+  def encrypted
+    wallet = Crypto.new(master_pass, iv)
+    wallet.encrypt({
+      user: user,
+      pass: pass
+    }.to_json)
+  end
+
+  def iv
+    unless @iv
+      generate_new_iv
+    end
+    @iv
+  end
+
+  def generate_new_iv
+    @iv = Crypto.generate_iv
+  end
+
+  def user=(val)
+    generate_new_iv
+    @user = val
+  end
+
+  def pass=(val)
+    generate_new_iv
+    @pass = val
   end
 
   def uuid
@@ -80,13 +114,13 @@ class Password
 
   def createdAt
     unless @createdAt
-      @createdAt = DateTime.new
+      @createdAt = DateTime.now
     end
     @createdAt
   end
 
   def updatedAt
-    @updatedAt = DateTime.new
+    @updatedAt = DateTime.now
   end
 
   def createdBy
@@ -97,6 +131,26 @@ class Password
     @encryption_version || 1.0
   end
 end
+
+=begin
+Password.all('foo').each do |password|
+  # password
+end
+=end
+
+master_password = 'foo'
+
+pass1 = Password.new(master_password, uuid: 121212, location: 'your moms house', iv: '12221221222', title: 'something')
+pass2 = Password.new(master_password, location: 'your moms house', iv: '12221221222', title: 'something')
+#pass1.save
+
+pass = Password.new(master_password)
+pass.location = 'https://github.com'
+pass.user = 'blainesch'
+pass.pass = 'foobar'
+pass.save
+sleep 5
+pass.save
 
 # Simple Example
 iv = Crypto.generate_iv
