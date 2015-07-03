@@ -2,6 +2,8 @@ require 'openssl'
 require 'base64'
 require 'json'
 require 'date'
+require 'securerandom'
+require 'pry'
 
 class Crypto
   attr_accessor :password, :iv
@@ -41,45 +43,58 @@ class Crypto
   end
 end
 
-class Source
-  def read
-
-  end
-
-  def write(model)
-    data = model.to_obj
-    data[:createdAt] ||= DateTime.new
-    data[:updatedAt] ||= DateTime.new
-    data[:createdBy] ||= 'DesktopRuby'
-    File.open(data[:id], 'w') { |file|
-      file.write(data.to_json)
-    }
-  end
-end
-
 class Password
-  attr_accessor :locationKey, :iv, :title, :location, :user, :pass
-  attr_accessor :createdAt, :updatedAt, :createdBy
-
-  # Model?
-  def self.all
-    Source.all
-  end
+  attr_accessor :uuid, :location, :encryption_version, :iv, :title
+  attr_accessor :updatedAt, :createdAt, :createdBy
+  attr_accessor :user, :pass
 
   def save
-    Source.write(self)
-  end
-  # /Model?
-
-  def to_obj
-    instance_variables.inject({}) do |memo, el|
-      key = el.to_s[1..-1].to_sym
-      memo[key] = send(key)
-      memo
+    File.open('foo.json', 'w') do |file|
+      file.write('{
+      uuid: uuid,
+      location: location,
+      encryption_version: encryption_version,
+      iv: iv,
+      title: title,
+      updatedAt: updatedAt,
+      createdAt: createdAt,
+      createdBy: createdBy,
+      user: user,
+      pass: pass
+      }')
     end
   end
 
-  def filename
+  def initialize(data)
+    data.each do |key, value|
+      send("#{key}=".to_sym, value)
+    end
+  end
+
+  def uuid
+    unless @uuid
+      @uuid = SecureRandom.uuid
+    end
+    @uuid
+  end
+
+  def createdAt
+    unless @createdAt
+      @createdAt = DateTime.new
+    end
+    @createdAt
+  end
+
+  def updatedAt
+    @updatedAt = DateTime.new
+  end
+
+  def createdBy
+    @createdBy || :ruby_desktop_dev
+  end
+
+  def encryption_version
+    @encryption_version || 1.0
   end
 end
 
@@ -94,10 +109,3 @@ puts secret_message
 
 puts 'Decrypted:'
 puts real_message
-
-# Saving and opening from a file
-data = {
-  iv: iv,
-  message: secret_message
-}
-puts data.to_json
