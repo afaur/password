@@ -144,13 +144,12 @@ class Password
     @encryption_version || 1.0
   end
 end
-
+=begin
 master_password = 'foo'
 
 foo = Password.all(master_password)
 binding.pry
 
-=begin
 
 pass1 = Password.new(master_password, uuid: 121212, location: 'your moms house', iv: '12221221222', title: 'something')
 pass2 = Password.new(master_password, location: 'your moms house', iv: '12221221222', title: 'something')
