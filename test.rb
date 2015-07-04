@@ -56,6 +56,19 @@ class Password
     end
   end
 
+  def self.all(master_password)
+    Dir.glob("*.json").map do |file_name|
+      data = JSON.parse(File.read(file_name), symbolize_names: true)
+      Password.parse(master_password, data)
+    end
+  end
+
+  def self.parse(master_password, data)
+    wallet = Crypto.new(master_password, data[:iv])
+    user_data = JSON.parse(wallet.decrypt(data.delete(:encrypted)), symbolize_names: true)
+    Password.new(master_password, user_data.merge(data))
+  end
+
   def save
     File.open(filename, 'w') do |file|
       file.write({
@@ -132,13 +145,12 @@ class Password
   end
 end
 
-=begin
-Password.all('foo').each do |password|
-  # password
-end
-=end
-
 master_password = 'foo'
+
+foo = Password.all(master_password)
+binding.pry
+
+=begin
 
 pass1 = Password.new(master_password, uuid: 121212, location: 'your moms house', iv: '12221221222', title: 'something')
 pass2 = Password.new(master_password, location: 'your moms house', iv: '12221221222', title: 'something')
@@ -163,3 +175,4 @@ puts secret_message
 
 puts 'Decrypted:'
 puts real_message
+=end
