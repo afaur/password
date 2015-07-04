@@ -1,29 +1,15 @@
 class AppDelegate
-  attr_accessor :status_menu
-
   def applicationDidFinishLaunching(notification)
-    @app_name = NSBundle.mainBundle.infoDictionary['CFBundleDisplayName']
-
-    @status_menu = NSMenu.new
-
-    @status_item = NSStatusBar.systemStatusBar.statusItemWithLength(NSVariableStatusItemLength).init
-    @status_item.setMenu(@status_menu)
-    @status_item.setHighlightMode(true)
-    @status_item.setTitle(@app_name)
-
-    @status_menu.addItem createMenuItem("About #{@app_name}", 'orderFrontStandardAboutPanel:')
-    @status_menu.addItem createMenuItem("Custom Action", 'pressAction')
-    @status_menu.addItem createMenuItem("Quit", 'terminate:')
+    buildMenu
+    buildWindow
   end
 
-  def createMenuItem(name, action)
-    NSMenuItem.alloc.initWithTitle(name, action: action, keyEquivalent: '')
-  end
-
-  def pressAction
-    alert = NSAlert.alloc.init
-    alert.setMessageText "Action triggered from status bar menu"
-    alert.addButtonWithTitle "OK"
-    alert.runModal
+  def buildWindow
+    @mainWindow = NSWindow.alloc.initWithContentRect([[240, 180], [480, 360]],
+      styleMask: NSTitledWindowMask|NSClosableWindowMask|NSMiniaturizableWindowMask|NSResizableWindowMask,
+      backing: NSBackingStoreBuffered,
+      defer: false)
+    @mainWindow.title = NSBundle.mainBundle.infoDictionary['CFBundleName']
+    @mainWindow.orderFrontRegardless
   end
 end

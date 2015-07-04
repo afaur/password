@@ -3,11 +3,7 @@ describe "Application 'openpass'" do
     @app = NSApplication.sharedApplication
   end
 
-  it "has a status menu" do
-    @app.delegate.status_menu.nil?.should == false
-  end
-
-  it "has three menu items" do
-    @app.delegate.status_menu.itemArray.length.should == 3
+  it "has one window" do
+    @app.windows.size.should == 1
   end
 end
