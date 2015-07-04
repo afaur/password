@@ -46,7 +46,7 @@ class MainController < TeacupWindowController
 
     Dispatch::Queue.concurrent.async do
 
-      @search_result = Password.all('master of disaster')
+      @search_result = [] #Password.all('master of disaster')
 
       Dispatch::Queue.main.sync { @table_view.reloadData }
 
