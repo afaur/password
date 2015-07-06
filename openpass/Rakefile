@@ -8,6 +8,6 @@ Motion::Project::App.setup do |app|
   # Use `rake config' to see complete project settings.
   app.name = 'OpenPass'
   app.pods do
-    pod 'CocoaSecurity'
+    pod "CocoaSecurity"
   end
 end

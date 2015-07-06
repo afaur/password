@@ -13,7 +13,6 @@ aes256Decrypt.utf8String
 =end
 class Crypto
   attr_accessor :password, :iv
-  ALG = 'AES-256-CBC'
 
   def initialize(password, iv)
     @password = password
@@ -21,26 +20,27 @@ class Crypto
   end
 
   def key
-    CocoaSecurity.sha384(password).hexLower[0, 32]
+    CocoaSecurity.sha256(password).hexLower
   end
 
   def self.generate_iv
-    CocoaSecurity.sha384(NSDate.date.to_s).hexLower[32, 16]
+    CocoaSecurity.sha256(NSDate.date.to_s).hexLower[32, 16]
   end
 
   def encrypt(text)
-    aes256 = CocoaSecurity.send('aesEncrypt:key'.to_sym, text, {
-      hexKey: key,
-      hexIv: iv
-    })
-    aes256.base64
+    begin
+      CocoaSecurity.send('aesEncrypt:hexKey:hexIv'.to_sym, text, key, iv)
+    rescue NSException => error
+      error.methods
+    end
   end
 
   def decrypt(data)
-    aes256Decrypt = CocoaSecurity.send('aesDecryptWithBase64:key'.to_sym, data, {
-      hexKey: key,
-      hexIv: iv
-    })
-    aes256Decrypt.utf8String
+    CocoaSecurity.send('aesDecryptWithBase64:hexKey:hexIv'.to_sym, data, key, iv).utf8String
+  end
+
+  def self.setup
+    iv = 'CC0A69779E15780ADAE46C45EB451A23'
+    Crypto.new('foobar', iv)
   end
 end
