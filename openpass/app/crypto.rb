@@ -19,20 +19,19 @@ class Crypto
     @iv = iv
   end
 
+  # hex
   def key
     CocoaSecurity.sha256(password).hexLower
   end
 
+  # hex
+  # not random
   def self.generate_iv
     CocoaSecurity.sha256(NSDate.date.to_s).hexLower[32, 16]
   end
 
   def encrypt(text)
-    begin
-      CocoaSecurity.send('aesEncrypt:hexKey:hexIv'.to_sym, text, key, iv)
-    rescue NSException => error
-      error.methods
-    end
+    CocoaSecurity.send('aesEncrypt:hexKey:hexIv'.to_sym, text, key, iv)
   end
 
   def decrypt(data)

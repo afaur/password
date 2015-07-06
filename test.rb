@@ -14,10 +14,12 @@ class Crypto
     @iv = iv
   end
 
+  # binary
   def key
     Digest::SHA256.digest(password)
   end
 
+  # base64 binary
   def self.generate_iv
     Base64.encode64(OpenSSL::Cipher::Cipher.new(ALG).random_iv).chomp
   end
