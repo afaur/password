@@ -19,6 +19,11 @@ class Crypto
     Digest::SHA256.digest(password)
   end
 
+  # binary
+  def iv
+    Base64.decode64(@iv)
+  end
+
   # base64 binary
   def self.generate_iv
     Base64.encode64(OpenSSL::Cipher::Cipher.new(ALG).random_iv).chomp
@@ -28,7 +33,7 @@ class Crypto
     aes = OpenSSL::Cipher::Cipher.new(ALG)
     aes.send(type)
     aes.key = key
-    aes.iv = Base64.decode64(iv)
+    aes.iv = iv
     aes
   end
 
@@ -48,6 +53,4 @@ class Crypto
   end
 end
 
-wallet = Crypto.setup
-puts wallet.iv.length
-puts wallet.encrypt('hello world')
+binding.pry

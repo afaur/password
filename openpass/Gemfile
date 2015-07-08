@@ -4,3 +4,6 @@ gem 'bubble-wrap'
 gem 'teacup'
 gem 'motion-cocoapods'
 gem 'motion-support'
+gem 'sugarcube', :require => [
+  'sugarcube-base64'
+]

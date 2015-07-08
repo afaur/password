@@ -47,6 +47,7 @@ GEM
       motion-require (>= 0.0.6)
     nap (0.8.0)
     netrc (0.7.8)
+    sugarcube (3.3.5)
     teacup (3.0.1)
     thread_safe (0.3.5)
     tzinfo (1.2.2)
@@ -62,4 +63,5 @@ DEPENDENCIES
   bubble-wrap
   motion-cocoapods
   motion-support
+  sugarcube
   teacup
