@@ -13,20 +13,18 @@ end
 class Pboard
   def self.copy(data)
     pboard = NSPasteboard.generalPasteboard
-    pboard.declareTypes([NSStringPboardType], owner:nil);
+    pboard.declareTypes([NSStringPboardType], owner:nil)
     pboard.setString(data, forType:NSStringPboardType)
   end
 
   # broken
   def self.paste
     pboard = NSPasteboard.generalPasteboard
-    pboard.declareTypes([NSStringPboardType], owner:nil);
     pboard.stringForType(NSStringPboardType)
   end
 
   def self.clear!
     pboard = NSPasteboard.generalPasteboard
-    pboard.declareTypes([NSStringPboardType], owner:nil);
     pboard.clearContents
   end
 end
