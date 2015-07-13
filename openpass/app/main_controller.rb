@@ -1,8 +1,13 @@
 class Pass
-  attr_accessor :title, :user
-  def initialize(title, user)
+  attr_accessor :title, :user, :pass
+  def initialize(title, user, pass)
     @title = title
     @user = user
+    @pass = pass
+  end
+
+  def encrypted_password
+    '*' * pass.length
   end
 
   def match?(word)
@@ -61,12 +66,18 @@ class MainController < TeacupWindowController
     column_username.setWidth(150)
     @table_view.addTableColumn(column_username)
 
+    column_password = NSTableColumn.alloc.initWithIdentifier("password")
+    column_password.editable = false
+    column_password.headerCell.setTitle("Password")
+    column_password.setWidth(150)
+    @table_view.addTableColumn(column_password)
+
     scroll_view.setDocumentView(@table_view)
 
     @original_result = [
-      Pass.new('GMail', 'afaur@gmail.com'),
-      Pass.new('BitBucket', 'afaur'),
-      Pass.new('Github', 'afaur'),
+      Pass.new('GMail', 'afaur@gmail.com', 'rawr'),
+      Pass.new('BitBucket', 'afaur', 'meow'),
+      Pass.new('Github', 'afaur', 'ruff'),
     ]
     @search_result = @original_result
     reload_table
@@ -101,6 +112,8 @@ class MainController < TeacupWindowController
       return @search_result[rowIndex].title
     when "username"
       return @search_result[rowIndex].user
+    when "password"
+      return @search_result[rowIndex].encrypted_password
     #when "actions"
       #return @search_result[rowIndex].
     end
