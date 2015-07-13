@@ -8,6 +8,7 @@ Bundler.require
 Motion::Project::App.setup do |app|
   # Use `rake config' to see complete project settings.
   app.name = 'OpenPass'
+  app.frameworks = %w(AppKit)
   app.pods do
     pod "CocoaSecurity"
   end

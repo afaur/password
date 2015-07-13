@@ -1,3 +1,36 @@
+class Pass
+  attr_accessor :title, :user
+  def initialize(title, user)
+    @title = title
+    @user = user
+  end
+
+  def match?(word)
+    title.match(word) || user.match(word)
+  end
+end
+
+class Pboard
+  def self.copy(data)
+    pboard = NSPasteboard.generalPasteboard
+    pboard.declareTypes([NSStringPboardType], owner:nil);
+    pboard.setString(data, forType:NSStringPboardType)
+  end
+
+  # broken
+  def self.paste
+    pboard = NSPasteboard.generalPasteboard
+    pboard.declareTypes([NSStringPboardType], owner:nil);
+    pboard.stringForType(NSStringPboardType)
+  end
+
+  def self.clear!
+    pboard = NSPasteboard.generalPasteboard
+    pboard.declareTypes([NSStringPboardType], owner:nil);
+    pboard.clearContents
+  end
+end
+
 class MainController < TeacupWindowController
   stylesheet :main_stylesheet
 
@@ -21,8 +54,7 @@ class MainController < TeacupWindowController
     column_title = NSTableColumn.alloc.initWithIdentifier("title")
     column_title.editable = false
     column_title.headerCell.setTitle("Title")
-    column_title.setWidth(40)
-    column_title.setDataCell(NSImageCell.alloc.init)
+    column_title.setWidth(150)
     @table_view.addTableColumn(column_title)
 
     column_username = NSTableColumn.alloc.initWithIdentifier("username")
@@ -31,46 +63,31 @@ class MainController < TeacupWindowController
     column_username.setWidth(150)
     @table_view.addTableColumn(column_username)
 
-=begin
-    column_tweet = NSTableColumn.alloc.initWithIdentifier("tweet")
-    column_tweet.editable = false
-    column_tweet.headerCell.setTitle("Tweet")
-    column_tweet.setWidth(290)
-    @table_view.addTableColumn(column_tweet)
-=end
-
     scroll_view.setDocumentView(@table_view)
+
+    @original_result = [
+      Pass.new('GMail', 'afaur@gmail.com'),
+      Pass.new('BitBucket', 'afaur'),
+      Pass.new('Github', 'afaur'),
+    ]
+    @search_result = @original_result
+    reload_table
+  end
+
+  def reload_table
+    Dispatch::Queue.concurrent.async do
+      Dispatch::Queue.main.sync do
+        @table_view.reloadData
+      end
+    end
   end
 
   def search(sender)
-
-    Dispatch::Queue.concurrent.async do
-
-      @search_result = [] #Password.all('master of disaster')
-
-      Dispatch::Queue.main.sync { @table_view.reloadData }
-
-    end
-
-=begin
     text = @text_search.stringValue
-
-    if text.length > 0
-
-      query = text.stringByAddingPercentEscapesUsingEncoding(NSUTF8StringEncoding)
-      url = "https://api.twitter.com/1.1/search/tweets.json?q=#{query}"
-
-      Dispatch::Queue.concurrent.async do
-
-        @search_result = Password.all('master of disaster')
-
-        Dispatch::Queue.main.sync { @table_view.reloadData }
-
-      end
-
+    @search_result = @original_result.select do |result|
+      result.match?(text) or text == ''
     end
-=end
-
+    reload_table
   end
 
   def numberOfRowsInTableView(aTableView)
