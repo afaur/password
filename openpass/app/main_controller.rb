@@ -22,7 +22,6 @@ class Pboard
     pboard.setString(data, forType:NSStringPboardType)
   end
 
-  # broken
   def self.paste
     pboard = NSPasteboard.generalPasteboard
     pboard.stringForType(NSStringPboardType)
